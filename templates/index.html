@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Formulario de Registro</title>
+
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container{
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h2{
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1e3c72;
+            font-size: 32px;
+        }
+
+        .grupo{
+            margin-bottom: 20px;
+        }
+
+        label{
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input,
+        textarea{
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #dcdcdc;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        input:focus,
+        textarea:focus{
+            border-color: #2a5298;
+            outline: none;
+            box-shadow: 0 0 8px rgba(42,82,152,0.3);
+        }
+
+        textarea{
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        #descripcion{
+            background-color: #f2f2f2;
+        }
+
+        button{
+            width: 100%;
+            padding: 15px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover{
+            background: #16325c;
+            transform: scale(1.02);
+        }
+
+        .mensaje{
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: green;
+        }
+
+        @media(max-width: 600px){
+
+            .container{
+                padding: 25px;
+            }
+
+            h2{
+                font-size: 24px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Formulario de Registro</h2>
+
+    <div class="grupo">
+        <label>Código</label>
+
+        <input type="number"
+               id="codigo"
+               placeholder="Ingrese el código">
+    </div>
+
+    <div class="grupo">
+        <label>Descripción</label>
+
+        <input type="text"
+               id="descripcion"
+               readonly
+               placeholder="La descripción aparecerá automáticamente">
+    </div>
+
+    <div class="grupo">
+        <label>Cantidad</label>
+
+        <input type="number"
+               id="cantidad"
+               placeholder="Ingrese la cantidad">
+    </div>
+
+    <div class="grupo">
+        <label>Número de Guía</label>
+
+        <input type="text"
+               id="numero_guia"
+               placeholder="Ingrese el número de guía">
+    </div>
+
+    <div class="grupo">
+        <label>Observaciones</label>
+
+        <textarea id="observaciones"
+                  placeholder="Escriba observaciones"></textarea>
+    </div>
+
+    <button onclick="guardar()">
+        Guardar Registro
+    </button>
+
+    <div class="mensaje"
+         id="mensaje"></div>
+
+</div>
+
+<script>
+
+    document.getElementById("codigo")
+        .addEventListener("input", async function(){
+
+        let codigo = this.value
+
+        if(codigo !== ""){
+
+            let response = await fetch(`/buscar_descripcion/${codigo}`)
+
+            let data = await response.json()
+
+            document.getElementById("descripcion").value =
+                data.descripcion
+        }
+        else{
+
+            document.getElementById("descripcion").value = ""
+        }
+
+    })
+
+    async function guardar(){
+
+        let datos = {
+
+            codigo:
+                document.getElementById("codigo").value,
+
+            descripcion:
+                document.getElementById("descripcion").value,
+
+            cantidad:
+                document.getElementById("cantidad").value,
+
+            numero_guia:
+                document.getElementById("numero_guia").value,
+
+            observaciones:
+                document.getElementById("observaciones").value
+        }
+
+        let response = await fetch("/guardar", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(datos)
+
+        })
+
+        let data = await response.json()
+
+        document.getElementById("mensaje").innerText =
+            data.mensaje
+
+        document.getElementById("codigo").value = ""
+        document.getElementById("descripcion").value = ""
+        document.getElementById("cantidad").value = ""
+        document.getElementById("numero_guia").value = ""
+        document.getElementById("observaciones").value = ""
+
+    }
+
+</script>
+
+</body>
+
+</html>
