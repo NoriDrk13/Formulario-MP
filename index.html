@@ -51,12 +51,6 @@ h1{
     grid-column:1 / -1;
 }
 
-label{
-    margin-bottom:8px;
-    font-weight:bold;
-    color:#333;
-}
-
 input, textarea{
     padding:14px;
     border:2px solid #ddd;
@@ -65,12 +59,8 @@ input, textarea{
 }
 
 input:focus, textarea:focus{
-    outline:none;
     border-color:#2a5298;
-}
-
-textarea{
-    min-height:100px;
+    outline:none;
 }
 
 #descripcion{
@@ -89,19 +79,19 @@ button{
     margin-top:10px;
 }
 
-button:hover{
-    background:#16325c;
-}
-
 .mensaje{
     margin-top:20px;
     text-align:center;
-    color:green;
     font-weight:bold;
+    font-size:16px;
 }
 
-hr{
-    margin:40px 0;
+.mensaje.ok{
+    color:green;
+}
+
+.mensaje.error{
+    color:red;
 }
 
 .filtros{
@@ -111,34 +101,6 @@ hr{
     margin-bottom:10px;
 }
 
-.tabla-container{
-    overflow-x:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-thead{
-    background:#1e3c72;
-    color:white;
-}
-
-th, td{
-    padding:12px;
-    border-bottom:1px solid #ddd;
-    text-align:left;
-    font-size:14px;
-}
-
-tr:hover{
-    background:#f5f5f5;
-}
-
-/* =========================
-   BOTONES FILTRO (MISMA FILA)
-   ========================= */
 .botones-filtro{
     display:flex;
     gap:10px;
@@ -150,25 +112,30 @@ tr:hover{
     padding:12px;
     border:none;
     border-radius:10px;
-    font-size:16px;
-    cursor:pointer;
     color:white;
 }
 
-/* aplicar filtros */
 .botones-filtro button:first-child{
     background:#1e3c72;
 }
 
-/* limpiar */
 .botones-filtro button:last-child{
     background:#777;
 }
 
-@media(max-width:768px){
-    .form-grid{
-        grid-template-columns:1fr;
-    }
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#1e3c72;
+    color:white;
 }
 
 </style>
@@ -183,63 +150,41 @@ tr:hover{
 
 <div class="form-grid">
 
-<div class="grupo">
-<label>Código</label>
-<input type="number" id="codigo">
-</div>
+<input type="number" id="codigo" placeholder="Código">
+<input type="text" id="descripcion" placeholder="Descripción" readonly>
+<input type="number" id="cantidad" placeholder="Cantidad">
+<input type="text" id="numero_guia" placeholder="Guía">
+<textarea id="observaciones" placeholder="Observaciones"></textarea>
 
-<div class="grupo">
-<label>Descripción</label>
-<input type="text" id="descripcion" readonly>
-</div>
-
-<div class="grupo">
-<label>Cantidad</label>
-<input type="number" id="cantidad">
-</div>
-
-<div class="grupo">
-<label>Número de Guía</label>
-<input type="text" id="numero_guia">
-</div>
-
-<div class="grupo grupo-full">
-<label>Observaciones</label>
-<textarea id="observaciones"></textarea>
-</div>
-
-<div class="grupo grupo-full">
+<div class="grupo-full">
 <button onclick="guardar()">Guardar Registro</button>
 </div>
 
 </div>
 
-<div class="mensaje" id="mensaje"></div>
+<!-- MENSAJE -->
+<div id="mensaje" class="mensaje"></div>
 
 <hr>
 
-<h1>Registros Guardados</h1>
+<h1>Registros</h1>
 
-<!-- FILTROS -->
 <div class="filtros">
 
-<input type="text" id="filtroCodigo" placeholder="Filtrar Código">
-<input type="text" id="filtroDescripcion" placeholder="Filtrar Descripción">
-<input type="text" id="filtroCantidad" placeholder="Filtrar Cantidad">
-<input type="text" id="filtroGuia" placeholder="Filtrar Guía">
-<input type="text" id="filtroObservaciones" placeholder="Filtrar Observaciones">
+<input type="text" id="filtroCodigo" placeholder="Código">
+<input type="text" id="filtroDescripcion" placeholder="Descripción">
+<input type="text" id="filtroCantidad" placeholder="Cantidad">
+<input type="text" id="filtroGuia" placeholder="Guía">
+<input type="text" id="filtroObservaciones" placeholder="Observaciones">
 
 </div>
 
-<!-- BOTONES EN MISMA FILA -->
 <div class="botones-filtro">
 
-<button onclick="filtrar()">Aplicar Filtros</button>
-<button onclick="limpiarFiltros()">Limpiar Filtros</button>
+<button onclick="filtrar()">Filtrar</button>
+<button onclick="limpiarFiltros()">Limpiar</button>
 
 </div>
-
-<div class="tabla-container">
 
 <table>
 
@@ -260,18 +205,10 @@ tr:hover{
 
 </div>
 
-</div>
-
 <script>
 
-// =========================
-// URL API
-// =========================
 const URL = "https://script.google.com/macros/s/AKfycbzu7M_LZ1hMOksc4PzokL28c3aGs14m0Dvdn9-j18CyNXbiV6n7MxfEn2mDi8ZH4VBjNQ/exec"
 
-// =========================
-// DATA GLOBAL
-// =========================
 let registrosGlobal = []
 
 // =========================
@@ -281,19 +218,19 @@ document.getElementById("codigo").addEventListener("input", async function(){
 
     let codigo = this.value
 
-    if(codigo === ""){
+    if(!codigo){
         document.getElementById("descripcion").value = ""
         return
     }
 
-    let response = await fetch(`${URL}?codigo=${codigo}`)
-    let data = await response.json()
+    let res = await fetch(`${URL}?codigo=${codigo}`)
+    let data = await res.json()
 
     document.getElementById("descripcion").value = data.descripcion || ""
 })
 
 // =========================
-// GUARDAR
+// GUARDAR + MENSAJE + LIMPIAR
 // =========================
 async function guardar(){
 
@@ -305,12 +242,32 @@ async function guardar(){
         observaciones: document.getElementById("observaciones").value
     }
 
-    await fetch(URL, {
+    let res = await fetch(URL, {
         method:"POST",
         body:JSON.stringify(datos)
     })
 
+    let data = await res.json()
+
+    // MENSAJE
+    const msg = document.getElementById("mensaje")
+    msg.innerText = "✅ Datos guardados correctamente"
+    msg.className = "mensaje ok"
+
+    // LIMPIAR CAMPOS
+    document.getElementById("codigo").value = ""
+    document.getElementById("descripcion").value = ""
+    document.getElementById("cantidad").value = ""
+    document.getElementById("numero_guia").value = ""
+    document.getElementById("observaciones").value = ""
+
+    // RECARGAR TABLA
     cargarRegistros()
+
+    // OCULTAR MENSAJE AUTOMÁTICO
+    setTimeout(() => {
+        msg.innerText = ""
+    }, 3000)
 }
 
 // =========================
@@ -318,8 +275,8 @@ async function guardar(){
 // =========================
 async function cargarRegistros(){
 
-    let response = await fetch(URL + "?listar=1")
-    let data = await response.json()
+    let res = await fetch(URL + "?listar=1")
+    let data = await res.json()
 
     registrosGlobal = Array.isArray(data) ? data : []
 
@@ -331,20 +288,20 @@ async function cargarRegistros(){
 // =========================
 function renderTabla(datos){
 
-    const tabla = document.getElementById("tablaRegistros")
+    let tabla = document.getElementById("tablaRegistros")
 
     let html = ""
 
-    datos.forEach(fila => {
+    datos.forEach(r => {
 
         html += `
         <tr>
-            <td>${fila.codigo ?? ""}</td>
-            <td>${fila.descripcion ?? ""}</td>
-            <td>${fila.cantidad ?? ""}</td>
-            <td>${fila.numero_guia ?? ""}</td>
-            <td>${fila.observaciones ?? ""}</td>
-            <td>${fila.fecha ?? ""}</td>
+            <td>${r.codigo ?? ""}</td>
+            <td>${r.descripcion ?? ""}</td>
+            <td>${r.cantidad ?? ""}</td>
+            <td>${r.numero_guia ?? ""}</td>
+            <td>${r.observaciones ?? ""}</td>
+            <td>${r.fecha ?? ""}</td>
         </tr>
         `
     })
@@ -353,24 +310,24 @@ function renderTabla(datos){
 }
 
 // =========================
-// FILTRAR
+// FILTRO
 // =========================
 function filtrar(){
 
-    let codigo = document.getElementById("filtroCodigo").value.trim().toLowerCase()
-    let descripcion = document.getElementById("filtroDescripcion").value.trim().toLowerCase()
-    let cantidad = document.getElementById("filtroCantidad").value.trim().toLowerCase()
-    let guia = document.getElementById("filtroGuia").value.trim().toLowerCase()
-    let observaciones = document.getElementById("filtroObservaciones").value.trim().toLowerCase()
+    let c = document.getElementById("filtroCodigo").value.toLowerCase()
+    let d = document.getElementById("filtroDescripcion").value.toLowerCase()
+    let q = document.getElementById("filtroCantidad").value.toLowerCase()
+    let g = document.getElementById("filtroGuia").value.toLowerCase()
+    let o = document.getElementById("filtroObservaciones").value.toLowerCase()
 
-    let filtrados = registrosGlobal.filter(fila => {
+    let filtrados = registrosGlobal.filter(r => {
 
         return (
-            String(fila.codigo ?? "").toLowerCase().includes(codigo) &&
-            String(fila.descripcion ?? "").toLowerCase().includes(descripcion) &&
-            String(fila.cantidad ?? "").toLowerCase().includes(cantidad) &&
-            String(fila.numero_guia ?? "").toLowerCase().includes(guia) &&
-            String(fila.observaciones ?? "").toLowerCase().includes(observaciones)
+            String(r.codigo ?? "").toLowerCase().includes(c) &&
+            String(r.descripcion ?? "").toLowerCase().includes(d) &&
+            String(r.cantidad ?? "").toLowerCase().includes(q) &&
+            String(r.numero_guia ?? "").toLowerCase().includes(g) &&
+            String(r.observaciones ?? "").toLowerCase().includes(o)
         )
     })
 
