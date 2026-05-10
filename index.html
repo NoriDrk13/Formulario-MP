@@ -3,143 +3,76 @@
 
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulario MP</title>
+<title>Sistema tipo Excel</title>
 
 <style>
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
 body{
-    font-family:Arial,sans-serif;
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-    min-height:100vh;
+    font-family:Arial;
+    background:#f4f6f9;
     padding:20px;
 }
 
 .container{
-    max-width:1400px;
-    margin:auto;
     background:white;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    padding:20px;
+    border-radius:10px;
 }
 
-h1{
-    text-align:center;
-    color:#1e3c72;
-    margin-bottom:30px;
-}
-
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-
-.grupo{
-    display:flex;
-    flex-direction:column;
-}
-
-.grupo-full{
-    grid-column:1 / -1;
-}
-
-label{
-    margin-bottom:8px;
-    font-weight:bold;
-    color:#333;
-}
-
-input, textarea{
-    padding:14px;
-    border:2px solid #ddd;
-    border-radius:12px;
-    font-size:15px;
-}
-
-input:focus, textarea:focus{
-    outline:none;
-    border-color:#2a5298;
-}
-
-textarea{
-    min-height:100px;
-}
-
-#descripcion{
-    background:#f2f2f2;
+input{
+    padding:10px;
+    margin:5px;
 }
 
 button{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    background:#1e3c72;
-    color:white;
-    font-size:18px;
     cursor:pointer;
-    margin-top:10px;
-}
-
-button:hover{
-    background:#16325c;
-}
-
-.mensaje{
-    margin-top:20px;
-    text-align:center;
-    color:green;
-    font-weight:bold;
-}
-
-hr{
-    margin:40px 0;
-}
-
-.filtros{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:15px;
-    margin-bottom:15px;
-}
-
-.tabla-container{
-    overflow-x:auto;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
+    margin-top:20px;
 }
 
-thead{
+th, td{
+    border:1px solid #ddd;
+    padding:10px;
+}
+
+th{
     background:#1e3c72;
     color:white;
 }
 
-th, td{
-    padding:12px;
-    border-bottom:1px solid #ddd;
-    text-align:left;
-    font-size:14px;
-}
-
 tr:hover{
-    background:#f5f5f5;
+    background:#f1f1f1;
 }
 
-@media(max-width:768px){
-    .form-grid{
-        grid-template-columns:1fr;
-    }
+/* =========================
+   BOTONES FILTRO (MISMA FILA)
+   ========================= */
+.botones-filtro{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.botones-filtro button{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.botones-filtro button:first-child{
+    background:#1e3c72;
+    color:white;
+}
+
+.botones-filtro button:last-child{
+    background:#777;
+    color:white;
 }
 
 </style>
@@ -150,64 +83,35 @@ tr:hover{
 
 <div class="container">
 
-<h1>Formulario de Registros</h1>
+<h2>📊 Sistema tipo Excel</h2>
 
-<div class="form-grid">
+<!-- FORMULARIO -->
+<input type="number" id="codigo" placeholder="Código">
+<input type="text" id="descripcion" placeholder="Descripción">
+<input type="number" id="cantidad" placeholder="Cantidad">
+<input type="text" id="numero_guia" placeholder="Guía">
+<input type="text" id="observaciones" placeholder="Observaciones">
 
-<div class="grupo">
-<label>Código</label>
-<input type="number" id="codigo">
-</div>
-
-<div class="grupo">
-<label>Descripción</label>
-<input type="text" id="descripcion" readonly>
-</div>
-
-<div class="grupo">
-<label>Cantidad</label>
-<input type="number" id="cantidad">
-</div>
-
-<div class="grupo">
-<label>Número de Guía</label>
-<input type="text" id="numero_guia">
-</div>
-
-<div class="grupo grupo-full">
-<label>Observaciones</label>
-<textarea id="observaciones"></textarea>
-</div>
-
-<div class="grupo grupo-full">
-<button onclick="guardar()">Guardar Registro</button>
-</div>
-
-</div>
-
-<div class="mensaje" id="mensaje"></div>
+<button onclick="guardar()">Guardar</button>
 
 <hr>
 
-<h1>Registros Guardados</h1>
-
 <!-- FILTROS -->
-<div class="filtros">
-
 <input type="text" id="filtroCodigo" placeholder="Filtrar Código">
 <input type="text" id="filtroDescripcion" placeholder="Filtrar Descripción">
 <input type="text" id="filtroCantidad" placeholder="Filtrar Cantidad">
 <input type="text" id="filtroGuia" placeholder="Filtrar Guía">
-<input type="text" id="filtroObservaciones" placeholder="Filtrar Observaciones">
+<input type="text" id="filtroObs" placeholder="Filtrar Observaciones">
+
+<!-- BOTONES EN UNA FILA -->
+<div class="botones-filtro">
+
+    <button onclick="filtrar()">🔍 Filtrar</button>
+    <button onclick="limpiar()">🧹 Limpiar</button>
 
 </div>
 
-<!-- BOTONES FILTRO -->
-<button onclick="filtrar()">Aplicar Filtros</button>
-<button onclick="limpiarFiltros()" style="background:#777;">Limpiar Filtros</button>
-
-<div class="tabla-container">
-
+<!-- TABLA -->
 <table>
 
 <thead>
@@ -221,46 +125,98 @@ tr:hover{
 </tr>
 </thead>
 
-<tbody id="tablaRegistros"></tbody>
+<tbody id="tabla"></tbody>
 
 </table>
 
 </div>
 
-</div>
-
 <script>
 
-// =========================
-// URL API
-// =========================
 const URL = "https://script.google.com/macros/s/AKfycbzu7M_LZ1hMOksc4PzokL28c3aGs14m0Dvdn9-j18CyNXbiV6n7MxfEn2mDi8ZH4VBjNQ/exec"
 
-// =========================
-// DATA GLOBAL
-// =========================
-let registrosGlobal = []
+let dataGlobal = []
 
 // =========================
-// AUTOCOMPLETAR
+// CARGAR
 // =========================
-document.getElementById("codigo").addEventListener("input", async function(){
+async function cargar(){
 
-    let codigo = this.value
+    let res = await fetch(URL + "?listar=1")
+    let data = await res.json()
 
-    if(codigo === ""){
-        document.getElementById("descripcion").value = ""
-        return
-    }
+    dataGlobal = Array.isArray(data) ? data : []
 
-    let response = await fetch(`${URL}?codigo=${codigo}`)
-    let data = await response.json()
-
-    document.getElementById("descripcion").value = data.descripcion || ""
-})
+    render(dataGlobal)
+}
 
 // =========================
-// GUARDAR
+// RENDER
+// =========================
+function render(data){
+
+    const tabla = document.getElementById("tabla")
+
+    let html = ""
+
+    data.forEach(r => {
+
+        html += `
+        <tr>
+            <td>${r.codigo ?? ""}</td>
+            <td>${r.descripcion ?? ""}</td>
+            <td>${r.cantidad ?? ""}</td>
+            <td>${r.numero_guia ?? ""}</td>
+            <td>${r.observaciones ?? ""}</td>
+            <td>${r.fecha ?? ""}</td>
+        </tr>
+        `
+    })
+
+    tabla.innerHTML = html
+}
+
+// =========================
+// FILTRAR
+// =========================
+function filtrar(){
+
+    let c = document.getElementById("filtroCodigo").value.toLowerCase().trim()
+    let d = document.getElementById("filtroDescripcion").value.toLowerCase().trim()
+    let q = document.getElementById("filtroCantidad").value.toLowerCase().trim()
+    let g = document.getElementById("filtroGuia").value.toLowerCase().trim()
+    let o = document.getElementById("filtroObs").value.toLowerCase().trim()
+
+    let filtrado = dataGlobal.filter(r => {
+
+        return (
+            String(r.codigo ?? "").toLowerCase().includes(c) &&
+            String(r.descripcion ?? "").toLowerCase().includes(d) &&
+            String(r.cantidad ?? "").toLowerCase().includes(q) &&
+            String(r.numero_guia ?? "").toLowerCase().includes(g) &&
+            String(r.observaciones ?? "").toLowerCase().includes(o)
+        )
+    })
+
+    render(filtrado)
+}
+
+// =========================
+// LIMPIAR
+// =========================
+function limpiar(){
+
+    document.getElementById("filtroCodigo").value = ""
+    document.getElementById("filtroDescripcion").value = ""
+    document.getElementById("filtroCantidad").value = ""
+    document.getElementById("filtroGuia").value = ""
+    document.getElementById("filtroObs").value = ""
+
+    render(dataGlobal)
+}
+
+// =========================
+// GUARDAR (simple)
 // =========================
 async function guardar(){
 
@@ -272,124 +228,16 @@ async function guardar(){
         observaciones: document.getElementById("observaciones").value
     }
 
-    let response = await fetch(URL, {
+    await fetch(URL, {
         method:"POST",
         body:JSON.stringify(datos)
     })
 
-    let data = await response.json()
-
-    document.getElementById("mensaje").innerText = data.mensaje || "Guardado"
-
-    document.getElementById("codigo").value = ""
-    document.getElementById("descripcion").value = ""
-    document.getElementById("cantidad").value = ""
-    document.getElementById("numero_guia").value = ""
-    document.getElementById("observaciones").value = ""
-
-    cargarRegistros()
+    cargar()
 }
 
-// =========================
-// CARGAR REGISTROS
-// =========================
-async function cargarRegistros(){
-
-    try{
-
-        let response = await fetch(URL + "?listar=1")
-        let data = await response.json()
-
-        if(!Array.isArray(data)){
-            registrosGlobal = []
-            return
-        }
-
-        registrosGlobal = data.reverse()
-        renderTabla(registrosGlobal)
-
-    }catch(err){
-        console.error(err)
-    }
-}
-
-// =========================
-// RENDER TABLA
-// =========================
-function renderTabla(datos){
-
-    const tabla = document.getElementById("tablaRegistros")
-
-    let html = ""
-
-    datos.forEach(fila => {
-
-        html += `
-        <tr>
-            <td>${fila.codigo ?? ""}</td>
-            <td>${fila.descripcion ?? ""}</td>
-            <td>${fila.cantidad ?? ""}</td>
-            <td>${fila.numero_guia ?? ""}</td>
-            <td>${fila.observaciones ?? ""}</td>
-            <td>${fila.fecha ?? ""}</td>
-        </tr>
-        `
-    })
-
-    tabla.innerHTML = html
-}
-
-// =========================
-// FILTRAR (BOTÓN)
-// =========================
-function filtrar(){
-
-    let codigo = document.getElementById("filtroCodigo").value.trim().toLowerCase()
-    let descripcion = document.getElementById("filtroDescripcion").value.trim().toLowerCase()
-    let cantidad = document.getElementById("filtroCantidad").value.trim().toLowerCase()
-    let guia = document.getElementById("filtroGuia").value.trim().toLowerCase()
-    let observaciones = document.getElementById("filtroObservaciones").value.trim().toLowerCase()
-
-    let filtrados = registrosGlobal.filter(fila => {
-
-        let fCodigo = String(fila.codigo ?? "").trim().toLowerCase()
-        let fDescripcion = String(fila.descripcion ?? "").trim().toLowerCase()
-        let fCantidad = String(fila.cantidad ?? "").trim().toLowerCase()
-        let fGuia = String(fila.numero_guia ?? "").trim().toLowerCase()
-        let fObs = String(fila.observaciones ?? "").trim().toLowerCase()
-
-        return (
-            fCodigo.includes(codigo) &&
-            fDescripcion.includes(descripcion) &&
-            fCantidad.includes(cantidad) &&
-            fGuia.includes(guia) &&
-            fObs.includes(observaciones)
-        )
-    })
-
-    console.log("TOTAL FILTRADOS:", filtrados.length) // 👈 DEBUG CLAVE
-
-    renderTabla(filtrados)
-}
-
-// =========================
-// LIMPIAR FILTROS
-// =========================
-function limpiarFiltros(){
-
-    document.getElementById("filtroCodigo").value = ""
-    document.getElementById("filtroDescripcion").value = ""
-    document.getElementById("filtroCantidad").value = ""
-    document.getElementById("filtroGuia").value = ""
-    document.getElementById("filtroObservaciones").value = ""
-
-    renderTabla(registrosGlobal)
-}
-
-// =========================
 // INIT
-// =========================
-cargarRegistros()
+cargar()
 
 </script>
 
