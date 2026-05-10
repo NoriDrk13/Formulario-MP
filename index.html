@@ -1,560 +1,216 @@
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>Formulario MP</title>
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-
-    font-family:Arial,sans-serif;
-
-    background:linear-gradient(
-        135deg,
-        #1e3c72,
-        #2a5298
-    );
-
-    min-height:100vh;
-
-    padding:20px;
-}
-
-.container{
-
-    max-width:1400px;
-
-    margin:auto;
-
-    background:white;
-
-    border-radius:20px;
-
-    padding:30px;
-
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
-
-h1{
-
-    text-align:center;
-
-    color:#1e3c72;
-
-    margin-bottom:30px;
-}
-
-.form-grid{
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:20px;
-}
-
-.grupo{
-
-    display:flex;
-
-    flex-direction:column;
-}
-
-.grupo-full{
-
-    grid-column:1 / -1;
-}
-
-label{
-
-    margin-bottom:8px;
-
-    font-weight:bold;
-
-    color:#333;
-}
-
-input,
-textarea{
-
-    padding:14px;
-
-    border:2px solid #ddd;
-
-    border-radius:12px;
-
-    font-size:15px;
-}
-
-input:focus,
-textarea:focus{
-
-    outline:none;
-
-    border-color:#2a5298;
-}
-
-textarea{
-
-    min-height:100px;
-}
-
-#descripcion{
-
-    background:#f2f2f2;
-}
-
-button{
-
-    width:100%;
-
-    padding:15px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#1e3c72;
-
-    color:white;
-
-    font-size:18px;
-
-    cursor:pointer;
-
-    transition:0.3s;
-}
-
-button:hover{
-
-    background:#16325c;
-}
-
-.mensaje{
-
-    margin-top:20px;
-
-    text-align:center;
-
-    color:green;
-
-    font-weight:bold;
-}
-
-hr{
-
-    margin:40px 0;
-}
-
-.filtros{
-
-    display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-
-    gap:15px;
-
-    margin-bottom:20px;
-}
-
-.tabla-container{
-
-    overflow-x:auto;
-}
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-}
-
-thead{
-
-    background:#1e3c72;
-
-    color:white;
-}
-
-th,
-td{
-
-    padding:12px;
-
-    border-bottom:1px solid #ddd;
-
-    text-align:left;
-
-    font-size:14px;
-}
-
-tr:hover{
-
-    background:#f5f5f5;
-}
-
-@media(max-width:768px){
-
-    .form-grid{
-
-        grid-template-columns:1fr;
-    }
-}
-
-</style>
-
-</head>
 
 <body>
 
 <div class="container">
 
-<h1>Formulario de Registros</h1>
+    <h1>Formulario de Registro</h1>
 
-<div class="form-grid">
+    <div class="grupo">
 
-<div class="grupo">
+        <label>Código</label>
 
-<label>Código</label>
+        <input type="number"
+               id="codigo"
+               placeholder="Ingrese el código">
 
-<input type="number"
-       id="codigo">
+    </div>
 
-</div>
+    <div class="grupo">
 
-<div class="grupo">
+        <label>Descripción</label>
 
-<label>Descripción</label>
+        <input type="text"
+               id="descripcion"
+               readonly
+               placeholder="Descripción automática">
 
-<input type="text"
-       id="descripcion"
-       readonly>
+    </div>
 
-</div>
+    <div class="grupo">
 
-<div class="grupo">
+        <label>Cantidad</label>
 
-<label>Cantidad</label>
+        <input type="number"
+               id="cantidad"
+               placeholder="Ingrese cantidad">
 
-<input type="number"
-       id="cantidad">
+    </div>
 
-</div>
+    <div class="grupo">
 
-<div class="grupo">
+        <label>Número de Guía</label>
 
-<label>Número de Guía</label>
+        <input type="text"
+               id="numero_guia"
+               placeholder="Ingrese número de guía">
 
-<input type="text"
-       id="numero_guia">
+    </div>
 
-</div>
+    <div class="grupo">
 
-<div class="grupo grupo-full">
+        <label>Observaciones</label>
 
-<label>Observaciones</label>
+        <textarea id="observaciones"
+                  placeholder="Escriba observaciones"></textarea>
 
-<textarea id="observaciones"></textarea>
+    </div>
 
-</div>
+    <button onclick="guardar()">
 
-<div class="grupo grupo-full">
+        Guardar Registro
 
-<button onclick="guardar()">
+    </button>
 
-Guardar Registro
+    <div class="loader"
+         id="loader">
 
-</button>
+        Guardando...
 
-</div>
+    </div>
 
-</div>
-
-<div class="mensaje"
-     id="mensaje"></div>
-
-<hr>
-
-<h1>Registros Guardados</h1>
-
-<div class="filtros">
-
-<input type="text"
-       id="filtroCodigo"
-       placeholder="Filtrar Código"
-       oninput="filtrar()">
-
-<input type="text"
-       id="filtroDescripcion"
-       placeholder="Filtrar Descripción"
-       oninput="filtrar()">
-
-<input type="text"
-       id="filtroCantidad"
-       placeholder="Filtrar Cantidad"
-       oninput="filtrar()">
-
-<input type="text"
-       id="filtroGuia"
-       placeholder="Filtrar Guía"
-       oninput="filtrar()">
-
-<input type="text"
-       id="filtroObservaciones"
-       placeholder="Filtrar Observaciones"
-       oninput="filtrar()">
-
-</div>
-
-<div class="tabla-container">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Código</th>
-<th>Descripción</th>
-<th>Cantidad</th>
-<th>Guía</th>
-<th>Observaciones</th>
-<th>Fecha</th>
-
-</tr>
-
-</thead>
-
-<tbody id="tablaRegistros">
-
-</tbody>
-
-</table>
-
-</div>
+    <div class="mensaje"
+         id="mensaje"></div>
 
 </div>
 
 <script>
 
-// ======================================
-// PEGAR URL APPS SCRIPT
-// ======================================
+    // ================================
+    // PEGA TU URL DE APPS SCRIPT
+    // ================================
 
-const URL =
-"PEGA_AQUI_TU_URL"
+    const URL =
+    "https://script.google.com/macros/s/AKfycbzu7M_LZ1hMOksc4PzokL28c3aGs14m0Dvdn9-j18CyNXbiV6n7MxfEn2mDi8ZH4VBjNQ/exec"
 
-// ======================================
-// VARIABLES
-// ======================================
+    document.getElementById("codigo")
+        .addEventListener("input", async function(){
 
-let registrosGlobal = []
+        let codigo = this.value
 
-// ======================================
-// AUTOCOMPLETAR DESCRIPCION
-// ======================================
+        if(codigo === ""){
 
-document.getElementById("codigo")
-.addEventListener("input", async function(){
+            document.getElementById("descripcion")
+                .value = ""
 
-    let codigo = this.value
+            return
+        }
 
-    if(codigo === ""){
+        try{
 
-        document.getElementById("descripcion")
-            .value = ""
+            let response =
+                await fetch(`${URL}?codigo=${codigo}`)
 
-        return
-    }
+            let data =
+                await response.json()
 
-    let response =
-        await fetch(`${URL}?codigo=${codigo}`)
+            document.getElementById("descripcion")
+                .value = data.descripcion
 
-    let data =
-        await response.json()
+        }
+        catch(error){
 
-    document.getElementById("descripcion")
-        .value = data.descripcion
-})
+            console.log(error)
+        }
 
-// ======================================
-// GUARDAR
-// ======================================
+    })
 
-async function guardar(){
+    // ================================
+    // GUARDAR DATOS
+    // ================================
 
-    let datos = {
+    async function guardar(){
 
-        codigo:
-            document.getElementById("codigo").value,
+        let codigo =
+            document.getElementById("codigo").value
 
-        descripcion:
-            document.getElementById("descripcion").value,
+        let descripcion =
+            document.getElementById("descripcion").value
 
-        cantidad:
-            document.getElementById("cantidad").value,
+        let cantidad =
+            document.getElementById("cantidad").value
 
-        numero_guia:
-            document.getElementById("numero_guia").value,
+        let numero_guia =
+            document.getElementById("numero_guia").value
 
-        observaciones:
+        let observaciones =
             document.getElementById("observaciones").value
+
+        // VALIDACIONES
+
+        if(codigo === ""){
+
+            alert("Ingrese código")
+
+            return
+        }
+
+        if(cantidad === ""){
+
+            alert("Ingrese cantidad")
+
+            return
+        }
+
+        document.getElementById("loader")
+            .style.display = "block"
+
+        const datos = {
+
+            codigo: codigo,
+
+            descripcion: descripcion,
+
+            cantidad: cantidad,
+
+            numero_guia: numero_guia,
+
+            observaciones: observaciones
+        }
+
+        try{
+
+            let response = await fetch(URL, {
+
+                method:"POST",
+
+                body:JSON.stringify(datos)
+            })
+
+            let data =
+                await response.json()
+
+            document.getElementById("mensaje")
+                .innerText = data.mensaje
+
+            // LIMPIAR CAMPOS
+
+            document.getElementById("codigo")
+                .value = ""
+
+            document.getElementById("descripcion")
+                .value = ""
+
+            document.getElementById("cantidad")
+                .value = ""
+
+            document.getElementById("numero_guia")
+                .value = ""
+
+            document.getElementById("observaciones")
+                .value = ""
+
+        }
+        catch(error){
+
+            console.log(error)
+
+            alert("Error al guardar")
+        }
+
+        document.getElementById("loader")
+            .style.display = "none"
     }
-
-    let response = await fetch(URL, {
-
-        method:"POST",
-
-        body:JSON.stringify(datos)
-    })
-
-    let data =
-        await response.json()
-
-    document.getElementById("mensaje")
-        .innerText = data.mensaje
-
-    document.getElementById("codigo").value = ""
-    document.getElementById("descripcion").value = ""
-    document.getElementById("cantidad").value = ""
-    document.getElementById("numero_guia").value = ""
-    document.getElementById("observaciones").value = ""
-
-    cargarRegistros()
-}
-
-// ======================================
-// CARGAR REGISTROS
-// ======================================
-
-async function cargarRegistros(){
-
-    let response =
-        await fetch(URL + "?listar=1")
-
-    registrosGlobal =
-        await response.json()
-
-    registrosGlobal.reverse()
-
-    renderTabla(registrosGlobal)
-}
-
-// ======================================
-// RENDER TABLA
-// ======================================
-
-function renderTabla(datos){
-
-    let tabla =
-        document.getElementById("tablaRegistros")
-
-    tabla.innerHTML = ""
-
-    datos.forEach(fila => {
-
-        tabla.innerHTML += `
-
-        <tr>
-
-            <td>${fila.codigo}</td>
-
-            <td>${fila.descripcion}</td>
-
-            <td>${fila.cantidad}</td>
-
-            <td>${fila.numero_guia}</td>
-
-            <td>${fila.observaciones}</td>
-
-            <td>${fila.fecha}</td>
-
-        </tr>
-        `
-    })
-}
-
-// ======================================
-// FILTROS
-// ======================================
-
-function filtrar(){
-
-    let codigo =
-        document.getElementById("filtroCodigo")
-        .value.toLowerCase()
-
-    let descripcion =
-        document.getElementById("filtroDescripcion")
-        .value.toLowerCase()
-
-    let cantidad =
-        document.getElementById("filtroCantidad")
-        .value.toLowerCase()
-
-    let guia =
-        document.getElementById("filtroGuia")
-        .value.toLowerCase()
-
-    let observaciones =
-        document.getElementById("filtroObservaciones")
-        .value.toLowerCase()
-
-    let filtrados = registrosGlobal.filter(fila => {
-
-        return (
-
-            String(fila.codigo)
-            .toLowerCase()
-            .includes(codigo)
-
-            &&
-
-            String(fila.descripcion)
-            .toLowerCase()
-            .includes(descripcion)
-
-            &&
-
-            String(fila.cantidad)
-            .toLowerCase()
-            .includes(cantidad)
-
-            &&
-
-            String(fila.numero_guia)
-            .toLowerCase()
-            .includes(guia)
-
-            &&
-
-            String(fila.observaciones)
-            .toLowerCase()
-            .includes(observaciones)
-        )
-    })
-
-    renderTabla(filtrados)
-}
-
-// ======================================
-// INICIAR
-// ======================================
-
-cargarRegistros()
 
 </script>
 
