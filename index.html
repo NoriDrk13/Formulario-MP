@@ -86,6 +86,7 @@ button{
     color:white;
     font-size:18px;
     cursor:pointer;
+    margin-top:10px;
 }
 
 button:hover{
@@ -107,7 +108,7 @@ hr{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
     gap:15px;
-    margin-bottom:20px;
+    margin-bottom:15px;
 }
 
 .tabla-container{
@@ -142,6 +143,7 @@ tr:hover{
 }
 
 </style>
+
 </head>
 
 <body>
@@ -189,15 +191,20 @@ tr:hover{
 
 <h1>Registros Guardados</h1>
 
+<!-- FILTROS -->
 <div class="filtros">
 
-<input type="text" id="filtroCodigo" placeholder="Filtrar Código" oninput="filtrar()">
-<input type="text" id="filtroDescripcion" placeholder="Filtrar Descripción" oninput="filtrar()">
-<input type="text" id="filtroCantidad" placeholder="Filtrar Cantidad" oninput="filtrar()">
-<input type="text" id="filtroGuia" placeholder="Filtrar Guía" oninput="filtrar()">
-<input type="text" id="filtroObservaciones" placeholder="Filtrar Observaciones" oninput="filtrar()">
+<input type="text" id="filtroCodigo" placeholder="Filtrar Código">
+<input type="text" id="filtroDescripcion" placeholder="Filtrar Descripción">
+<input type="text" id="filtroCantidad" placeholder="Filtrar Cantidad">
+<input type="text" id="filtroGuia" placeholder="Filtrar Guía">
+<input type="text" id="filtroObservaciones" placeholder="Filtrar Observaciones">
 
 </div>
+
+<!-- BOTONES FILTRO -->
+<button onclick="filtrar()">Aplicar Filtros</button>
+<button onclick="limpiarFiltros()" style="background:#777;">Limpiar Filtros</button>
 
 <div class="tabla-container">
 
@@ -266,8 +273,8 @@ async function guardar(){
     }
 
     let response = await fetch(URL, {
-        method: "POST",
-        body: JSON.stringify(datos)
+        method:"POST",
+        body:JSON.stringify(datos)
     })
 
     let data = await response.json()
@@ -294,7 +301,6 @@ async function cargarRegistros(){
         let data = await response.json()
 
         if(!Array.isArray(data)){
-            console.error("Respuesta inválida:", data)
             registrosGlobal = []
             return
         }
@@ -303,12 +309,12 @@ async function cargarRegistros(){
         renderTabla(registrosGlobal)
 
     }catch(err){
-        console.error("Error cargando:", err)
+        console.error(err)
     }
 }
 
 // =========================
-// RENDER TABLA (FIX)
+// RENDER TABLA
 // =========================
 function renderTabla(datos){
 
@@ -334,7 +340,7 @@ function renderTabla(datos){
 }
 
 // =========================
-// FILTROS (FIX)
+// FILTRAR (BOTÓN)
 // =========================
 function filtrar(){
 
@@ -356,6 +362,20 @@ function filtrar(){
     })
 
     renderTabla(filtrados)
+}
+
+// =========================
+// LIMPIAR FILTROS
+// =========================
+function limpiarFiltros(){
+
+    document.getElementById("filtroCodigo").value = ""
+    document.getElementById("filtroDescripcion").value = ""
+    document.getElementById("filtroCantidad").value = ""
+    document.getElementById("filtroGuia").value = ""
+    document.getElementById("filtroObservaciones").value = ""
+
+    renderTabla(registrosGlobal)
 }
 
 // =========================
