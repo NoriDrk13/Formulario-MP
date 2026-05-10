@@ -3,55 +3,143 @@
 
 <head>
 <meta charset="UTF-8">
-<title>Excel Web Real</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulario MP</title>
 
 <style>
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 body{
-    font-family:Arial;
-    background:#f4f6f9;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    min-height:100vh;
     padding:20px;
 }
 
 .container{
+    max-width:1400px;
+    margin:auto;
     background:white;
-    padding:20px;
-    border-radius:10px;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
-input{
-    padding:10px;
-    margin:5px;
-    width:180px;
+h1{
+    text-align:center;
+    color:#1e3c72;
+    margin-bottom:30px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.grupo{
+    display:flex;
+    flex-direction:column;
+}
+
+.grupo-full{
+    grid-column:1 / -1;
+}
+
+label{
+    margin-bottom:8px;
+    font-weight:bold;
+    color:#333;
+}
+
+input, textarea{
+    padding:14px;
+    border:2px solid #ddd;
+    border-radius:12px;
+    font-size:15px;
+}
+
+input:focus, textarea:focus{
+    outline:none;
+    border-color:#2a5298;
+}
+
+textarea{
+    min-height:100px;
+}
+
+#descripcion{
+    background:#f2f2f2;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#1e3c72;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+button:hover{
+    background:#16325c;
+}
+
+.mensaje{
+    margin-top:20px;
+    text-align:center;
+    color:green;
+    font-weight:bold;
+}
+
+hr{
+    margin:40px 0;
+}
+
+.filtros{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.tabla-container{
+    overflow-x:auto;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
+}
+
+thead{
+    background:#1e3c72;
+    color:white;
 }
 
 th, td{
-    border:1px solid #ddd;
-    padding:10px;
+    padding:12px;
+    border-bottom:1px solid #ddd;
     text-align:left;
     font-size:14px;
 }
 
-th{
-    background:#1e3c72;
-    color:white;
-    cursor:pointer;
-    position:sticky;
-    top:0;
-}
-
 tr:hover{
-    background:#f1f1f1;
+    background:#f5f5f5;
 }
 
-.toolbar{
-    margin-bottom:10px;
+@media(max-width:768px){
+    .form-grid{
+        grid-template-columns:1fr;
+    }
 }
 
 </style>
@@ -62,75 +150,188 @@ tr:hover{
 
 <div class="container">
 
-<h2>📊 Excel Web Real</h2>
+<h1>Formulario de Registros</h1>
 
-<div class="toolbar">
+<div class="form-grid">
 
-<input type="text" id="busquedaGlobal" placeholder="🔎 Buscar todo...">
+<div class="grupo">
+<label>Código</label>
+<input type="number" id="codigo">
+</div>
 
-<input type="text" id="filtroCodigo" placeholder="Código">
-<input type="text" id="filtroDescripcion" placeholder="Descripción">
-<input type="text" id="filtroCantidad" placeholder="Cantidad">
+<div class="grupo">
+<label>Descripción</label>
+<input type="text" id="descripcion" readonly>
+</div>
+
+<div class="grupo">
+<label>Cantidad</label>
+<input type="number" id="cantidad">
+</div>
+
+<div class="grupo">
+<label>Número de Guía</label>
+<input type="text" id="numero_guia">
+</div>
+
+<div class="grupo grupo-full">
+<label>Observaciones</label>
+<textarea id="observaciones"></textarea>
+</div>
+
+<div class="grupo grupo-full">
+<button onclick="guardar()">Guardar Registro</button>
+</div>
 
 </div>
+
+<div class="mensaje" id="mensaje"></div>
+
+<hr>
+
+<h1>Registros Guardados</h1>
+
+<!-- FILTROS -->
+<div class="filtros">
+
+<input type="text" id="filtroCodigo" placeholder="Filtrar Código">
+<input type="text" id="filtroDescripcion" placeholder="Filtrar Descripción">
+<input type="text" id="filtroCantidad" placeholder="Filtrar Cantidad">
+<input type="text" id="filtroGuia" placeholder="Filtrar Guía">
+<input type="text" id="filtroObservaciones" placeholder="Filtrar Observaciones">
+
+</div>
+
+<!-- BOTONES FILTRO -->
+<button onclick="filtrar()">Aplicar Filtros</button>
+<button onclick="limpiarFiltros()" style="background:#777;">Limpiar Filtros</button>
+
+<div class="tabla-container">
 
 <table>
 
 <thead>
 <tr>
-<th onclick="ordenar('codigo')">Código</th>
-<th onclick="ordenar('descripcion')">Descripción</th>
-<th onclick="ordenar('cantidad')">Cantidad</th>
+<th>Código</th>
+<th>Descripción</th>
+<th>Cantidad</th>
 <th>Guía</th>
 <th>Observaciones</th>
 <th>Fecha</th>
 </tr>
 </thead>
 
-<tbody id="tabla"></tbody>
+<tbody id="tablaRegistros"></tbody>
 
 </table>
 
 </div>
 
+</div>
+
 <script>
 
+// =========================
+// URL API
+// =========================
 const URL = "https://script.google.com/macros/s/AKfycbzu7M_LZ1hMOksc4PzokL28c3aGs14m0Dvdn9-j18CyNXbiV6n7MxfEn2mDi8ZH4VBjNQ/exec"
 
-let dataGlobal = []
-let ordenAsc = true
+// =========================
+// DATA GLOBAL
+// =========================
+let registrosGlobal = []
 
 // =========================
-// CARGAR DATOS
+// AUTOCOMPLETAR
 // =========================
-async function cargar(){
+document.getElementById("codigo").addEventListener("input", async function(){
 
-    let res = await fetch(URL + "?listar=1")
-    let data = await res.json()
+    let codigo = this.value
 
-    dataGlobal = data
-    render(dataGlobal)
+    if(codigo === ""){
+        document.getElementById("descripcion").value = ""
+        return
+    }
+
+    let response = await fetch(`${URL}?codigo=${codigo}`)
+    let data = await response.json()
+
+    document.getElementById("descripcion").value = data.descripcion || ""
+})
+
+// =========================
+// GUARDAR
+// =========================
+async function guardar(){
+
+    let datos = {
+        codigo: document.getElementById("codigo").value,
+        descripcion: document.getElementById("descripcion").value,
+        cantidad: document.getElementById("cantidad").value,
+        numero_guia: document.getElementById("numero_guia").value,
+        observaciones: document.getElementById("observaciones").value
+    }
+
+    let response = await fetch(URL, {
+        method:"POST",
+        body:JSON.stringify(datos)
+    })
+
+    let data = await response.json()
+
+    document.getElementById("mensaje").innerText = data.mensaje || "Guardado"
+
+    document.getElementById("codigo").value = ""
+    document.getElementById("descripcion").value = ""
+    document.getElementById("cantidad").value = ""
+    document.getElementById("numero_guia").value = ""
+    document.getElementById("observaciones").value = ""
+
+    cargarRegistros()
 }
 
 // =========================
-// RENDER OPTIMIZADO
+// CARGAR REGISTROS
 // =========================
-function render(data){
+async function cargarRegistros(){
 
-    const tabla = document.getElementById("tabla")
+    try{
+
+        let response = await fetch(URL + "?listar=1")
+        let data = await response.json()
+
+        if(!Array.isArray(data)){
+            registrosGlobal = []
+            return
+        }
+
+        registrosGlobal = data.reverse()
+        renderTabla(registrosGlobal)
+
+    }catch(err){
+        console.error(err)
+    }
+}
+
+// =========================
+// RENDER TABLA
+// =========================
+function renderTabla(datos){
+
+    const tabla = document.getElementById("tablaRegistros")
 
     let html = ""
 
-    data.forEach(r => {
+    datos.forEach(fila => {
 
         html += `
         <tr>
-            <td>${r.codigo ?? ""}</td>
-            <td>${r.descripcion ?? ""}</td>
-            <td>${r.cantidad ?? ""}</td>
-            <td>${r.numero_guia ?? ""}</td>
-            <td>${r.observaciones ?? ""}</td>
-            <td>${r.fecha ?? ""}</td>
+            <td>${fila.codigo ?? ""}</td>
+            <td>${fila.descripcion ?? ""}</td>
+            <td>${fila.cantidad ?? ""}</td>
+            <td>${fila.numero_guia ?? ""}</td>
+            <td>${fila.observaciones ?? ""}</td>
+            <td>${fila.fecha ?? ""}</td>
         </tr>
         `
     })
@@ -139,62 +340,56 @@ function render(data){
 }
 
 // =========================
-// FILTRO TIPO EXCEL (INSTANTÁNEO)
+// FILTRAR (BOTÓN)
 // =========================
 function filtrar(){
 
-    let c = document.getElementById("filtroCodigo").value.toLowerCase()
-    let d = document.getElementById("filtroDescripcion").value.toLowerCase()
-    let q = document.getElementById("filtroCantidad").value.toLowerCase()
-    let g = document.getElementById("busquedaGlobal").value.toLowerCase()
+    let codigo = document.getElementById("filtroCodigo").value.trim().toLowerCase()
+    let descripcion = document.getElementById("filtroDescripcion").value.trim().toLowerCase()
+    let cantidad = document.getElementById("filtroCantidad").value.trim().toLowerCase()
+    let guia = document.getElementById("filtroGuia").value.trim().toLowerCase()
+    let observaciones = document.getElementById("filtroObservaciones").value.trim().toLowerCase()
 
-    let filtrado = dataGlobal.filter(r => {
+    let filtrados = registrosGlobal.filter(fila => {
 
-        let texto =
-            (r.codigo + " " +
-             r.descripcion + " " +
-             r.cantidad + " " +
-             r.numero_guia + " " +
-             r.observaciones).toLowerCase()
+        let fCodigo = String(fila.codigo ?? "").trim().toLowerCase()
+        let fDescripcion = String(fila.descripcion ?? "").trim().toLowerCase()
+        let fCantidad = String(fila.cantidad ?? "").trim().toLowerCase()
+        let fGuia = String(fila.numero_guia ?? "").trim().toLowerCase()
+        let fObs = String(fila.observaciones ?? "").trim().toLowerCase()
 
         return (
-            texto.includes(g) &&
-            String(r.codigo).toLowerCase().includes(c) &&
-            String(r.descripcion).toLowerCase().includes(d) &&
-            String(r.cantidad).toLowerCase().includes(q)
+            fCodigo.includes(codigo) &&
+            fDescripcion.includes(descripcion) &&
+            fCantidad.includes(cantidad) &&
+            fGuia.includes(guia) &&
+            fObs.includes(observaciones)
         )
     })
 
-    render(filtrado)
+    console.log("TOTAL FILTRADOS:", filtrados.length) // 👈 DEBUG CLAVE
+
+    renderTabla(filtrados)
 }
 
-// eventos
-document.getElementById("busquedaGlobal").addEventListener("input", filtrar)
-document.getElementById("filtroCodigo").addEventListener("input", filtrar)
-document.getElementById("filtroDescripcion").addEventListener("input", filtrar)
-document.getElementById("filtroCantidad").addEventListener("input", filtrar)
-
 // =========================
-// ORDENAR COLUMNAS
+// LIMPIAR FILTROS
 // =========================
-function ordenar(campo){
+function limpiarFiltros(){
 
-    dataGlobal.sort((a,b)=>{
+    document.getElementById("filtroCodigo").value = ""
+    document.getElementById("filtroDescripcion").value = ""
+    document.getElementById("filtroCantidad").value = ""
+    document.getElementById("filtroGuia").value = ""
+    document.getElementById("filtroObservaciones").value = ""
 
-        let v1 = String(a[campo] ?? "").toLowerCase()
-        let v2 = String(b[campo] ?? "").toLowerCase()
-
-        if(v1 < v2) return ordenAsc ? -1 : 1
-        if(v1 > v2) return ordenAsc ? 1 : -1
-        return 0
-    })
-
-    ordenAsc = !ordenAsc
-    render(dataGlobal)
+    renderTabla(registrosGlobal)
 }
 
-// init
-cargar()
+// =========================
+// INIT
+// =========================
+cargarRegistros()
 
 </script>
 
